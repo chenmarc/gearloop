@@ -1,0 +1,97 @@
+# Codemagic builds for gearloop. See docs/codemagic.md for the one-time setup.
+#
+# gearloop-check  runs on every push: tests, plus unsigned iPhone-simulator and Mac builds.
+#                 Needs no Apple account, so it is the first thing to get green.
+# gearloop-ios    started by hand: signed iPhone build uploaded to TestFlight.
+
+definitions:
+  scripts:
+    - &install_dotnet
+      name: Install .NET 10 and the MAUI workloads
+      script: |
+        curl -sSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
+        chmod +x dotnet-install.sh
+        ./dotnet-install.sh --channel 10.0 --install-dir "$DOTNET_PATH"
+        "$DOTNET" workload install maui-ios maui-maccatalyst
+        "$DOTNET" --info
+
+workflows:
+  gearloop-check:
+    name: gearloop check
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      xcode: latest
+      vars:
+        DOTNET_PATH: $CM_BUILD_DIR/.dotnet
+        DOTNET: $CM_BUILD_DIR/.dotnet/dotnet
+        DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: '*'
+    scripts:
+      - *install_dotnet
+      - name: Run tests
+        script: |
+          "$DOTNET" test tests/Gearloop.Tests --logger "trx;LogFileName=results.trx" --results-directory test-results
+        test_report: test-results/results.trx
+      - name: Build for iPhone simulator
+        script: |
+          "$DOTNET" build src/Gearloop.App -f net10.0-ios -c Debug -p:RuntimeIdentifier=iossimulator-arm64
+      - name: Build for Mac
+        script: |
+          "$DOTNET" build src/Gearloop.App -f net10.0-maccatalyst -c Debug
+
+  gearloop-ios:
+    name: gearloop iOS to TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 90
+    integrations:
+      # The name you give the App Store Connect API key in Codemagic's Team integrations.
+      app_store_connect: gearloop-asc
+    environment:
+      xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.marcchenard.gearloop
+      vars:
+        DOTNET_PATH: $CM_BUILD_DIR/.dotnet
+        DOTNET: $CM_BUILD_DIR/.dotnet/dotnet
+        DOTNET_CLI_TELEMETRY_OPTOUT: 1
+        # The numeric Apple ID of the app, from App Store Connect > App Information.
+        APP_STORE_APPLE_ID: "0000000000"
+        APP_VERSION: "0.1.0"
+    scripts:
+      - *install_dotnet
+      - name: Run tests
+        script: |
+          "$DOTNET" test tests/Gearloop.Tests
+      - name: Build signed .ipa
+        script: |
+          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" || true)
+          if [ -z "$LATEST" ]; then BUILD=$BUILD_NUMBER; else BUILD=$((LATEST + 1)); fi
+
+          # dotnet publish needs the certificate and profile by name; Codemagic installed them
+          # from the ios_signing settings above.
+          CERT_NAME=$(keychain list-certificates | jq -r '.[0].common_name')
+          PROFILE_NAME=$(find ~/Library/MobileDevice/Provisioning\ Profiles -name "*.mobileprovision" \
+            -execdir sh -c '/usr/libexec/PlistBuddy -c "print :Name" /dev/stdin <<< $(security cms -D -i {})' \; | head -n 1)
+          echo "Signing with '$CERT_NAME' and profile '$PROFILE_NAME', build $BUILD"
+
+          "$DOTNET" publish src/Gearloop.App -f net10.0-ios -c Release \
+            -p:RuntimeIdentifier=ios-arm64 \
+            -p:BuildIpa=true \
+            -p:ApplicationDisplayVersion="$APP_VERSION" \
+            -p:ApplicationVersion="$BUILD" \
+            -p:CodesignKey="$CERT_NAME" \
+            -p:CodesignProvision="$PROFILE_NAME" \
+            -o artifacts
+    artifacts:
+      - artifacts/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        # Upload only. Builds go to internal testers (you) without Apple's beta review.
+        submit_to_testflight: false

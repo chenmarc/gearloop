@@ -12,7 +12,7 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
 
     <ApplicationTitle>gearloop</ApplicationTitle>
-    <ApplicationId>com.gearloop.app</ApplicationId>
+    <ApplicationId>com.marcchenard.gearloop</ApplicationId>
     <ApplicationDisplayVersion>0.1</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
 

@@ -35,6 +35,10 @@ Money is stored as exact decimals (TEXT in SQLite) and rounded to cents with hal
    sudo dotnet workload install maui
    ```
 
+## Building without a Mac
+
+See [docs/codemagic.md](docs/codemagic.md) to build the iPhone app in the cloud with Codemagic and install it through TestFlight.
+
 ## Running
 
 ```sh

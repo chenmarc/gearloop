@@ -6,14 +6,19 @@
 
 definitions:
   scripts:
+    # .NET for iOS and Mac only builds with the exact Xcode major.minor it was made for, so the
+    # workload set and the Xcode version below are pinned together. Workload set 10.113.0 has
+    # iOS and Mac Catalyst 27.0 (needs Xcode 27.0) and MAUI 10.0.110. To upgrade, pick a newer
+    # set whose iOS and MacCatalyst versions match each other, and change xcode: to match.
     - &install_dotnet
       name: Install .NET 10 and the MAUI workloads
       script: |
         curl -sSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
         chmod +x dotnet-install.sh
-        ./dotnet-install.sh --channel 10.0 --install-dir "$DOTNET_PATH"
-        "$DOTNET" workload install maui-ios maui-maccatalyst
-        "$DOTNET" --info
+        ./dotnet-install.sh --channel 10.0.1xx --install-dir "$DOTNET_PATH"
+        "$DOTNET" workload install maui-ios maui-maccatalyst --version 10.113.0
+        "$DOTNET" workload --info
+        xcodebuild -version
 
 workflows:
   gearloop-check:
@@ -21,7 +26,7 @@ workflows:
     instance_type: mac_mini_m2
     max_build_duration: 60
     environment:
-      xcode: latest
+      xcode: 27.0
       vars:
         DOTNET_PATH: $CM_BUILD_DIR/.dotnet
         DOTNET: $CM_BUILD_DIR/.dotnet/dotnet
@@ -52,7 +57,7 @@ workflows:
       # The name you give the App Store Connect API key in Codemagic's Team integrations.
       app_store_connect: gearloop-asc
     environment:
-      xcode: latest
+      xcode: 27.0
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.marcchenard.gearloop

@@ -127,4 +127,16 @@ workflows:
       - *install_dotnet
       - name: Build for Mac (macOS 12 and newer)
         script: |
-          "$DOTNET" build src/Gearloop.App -f net10.0-maccatalyst -c Debug -p:GearloopMacCatalystMinimum=15.0
+          set -euo pipefail
+          # Intel build (Macs that stay on Monterey are Intel). Unsigned, for running locally:
+          # unzip, then right-click the app and choose Open the first time.
+          "$DOTNET" build src/Gearloop.App -f net10.0-maccatalyst -c Debug \
+            -p:GearloopMacCatalystMinimum=15.0 \
+            -p:RuntimeIdentifier=maccatalyst-x64 \
+            -p:EnableCodeSigning=false
+          APP=$(find src/Gearloop.App/bin/Debug/net10.0-maccatalyst/maccatalyst-x64 -maxdepth 1 -name "*.app" | head -n 1)
+          echo "Built $APP"
+          mkdir -p artifacts
+          ditto -c -k --keepParent "$APP" artifacts/gearloop-mac-intel.zip
+    artifacts:
+      - artifacts/*.zip

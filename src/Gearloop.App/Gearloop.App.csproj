@@ -18,7 +18,7 @@
 
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
     <!-- Mac Catalyst 17.0 is macOS 14 Sonoma, the lowest the Xcode 27 tools allow. A build made with
-         the older Xcode 26.5 tools can pass -p:GearloopMacCatalystMinimum=15.0 to run on macOS 12 Monterey. -->
+         the older Xcode 26.6 tools can pass -p:GearloopMacCatalystMinimum=15.0 to run on macOS 12 Monterey. -->
     <GearloopMacCatalystMinimum Condition="'$(GearloopMacCatalystMinimum)' == ''">17.0</GearloopMacCatalystMinimum>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">$(GearloopMacCatalystMinimum)</SupportedOSPlatformVersion>
   </PropertyGroup>

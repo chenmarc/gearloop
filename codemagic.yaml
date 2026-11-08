@@ -4,7 +4,7 @@
 #                 Needs no Apple account, so it is the first thing to get green.
 # gearloop-ios    started by hand: signed iPhone build uploaded to TestFlight.
 # gearloop-mac-monterey-check
-#                 started by hand: unsigned Mac build on the older Xcode 26.5 tools so the
+#                 started by hand: unsigned Mac build on the older Xcode 26.6 tools so the
 #                 Mac app runs on macOS 12 Monterey (the Xcode 27 tools need macOS 14).
 
 definitions:
@@ -13,7 +13,8 @@ definitions:
     # workflow pins WORKLOAD_SET and xcode: together. Workload sets are written in CLI form
     # (10.0.113 is NuGet package version 10.113.0):
     #   10.0.113  iOS and Mac Catalyst 27.0, MAUI 10.0.110  ->  xcode: 27.0
-    #   10.0.112  iOS and Mac Catalyst 26.5, MAUI 10.0.20   ->  xcode: 26.5 (Mac app runs on macOS 12)
+    # The Xcode a pack needs is its _RecommendedXcodeVersion, which can differ from the pack name.
+    #   10.0.112  iOS and Mac Catalyst 26.5, MAUI 10.0.20   ->  xcode: 26.6 (Mac app runs on macOS 12)
     # To upgrade, pick a newer set whose iOS and MacCatalyst versions match, and change xcode: to match.
     - &install_dotnet
       name: Install .NET 10 and the MAUI workloads
@@ -117,7 +118,7 @@ workflows:
     instance_type: mac_mini_m2
     max_build_duration: 60
     environment:
-      xcode: 26.5
+      xcode: 26.6
       vars:
         DOTNET_PATH: $CM_BUILD_DIR/.dotnet
         DOTNET: $CM_BUILD_DIR/.dotnet/dotnet

@@ -3,13 +3,18 @@
 # gearloop-check  runs on every push: tests, plus unsigned iPhone-simulator and Mac builds.
 #                 Needs no Apple account, so it is the first thing to get green.
 # gearloop-ios    started by hand: signed iPhone build uploaded to TestFlight.
+# gearloop-mac-monterey-check
+#                 started by hand: unsigned Mac build on the older Xcode 26.5 tools so the
+#                 Mac app runs on macOS 12 Monterey (the Xcode 27 tools need macOS 14).
 
 definitions:
   scripts:
-    # .NET for iOS and Mac only builds with the exact Xcode major.minor it was made for, so the
-    # workload set and the Xcode version below are pinned together. Workload set 10.0.113 (NuGet package version 10.113.0) has
-    # iOS and Mac Catalyst 27.0 (needs Xcode 27.0) and MAUI 10.0.110. To upgrade, pick a newer
-    # set whose iOS and MacCatalyst versions match each other, and change xcode: to match.
+    # .NET for iOS and Mac only builds with the exact Xcode major.minor it was made for, so each
+    # workflow pins WORKLOAD_SET and xcode: together. Workload sets are written in CLI form
+    # (10.0.113 is NuGet package version 10.113.0):
+    #   10.0.113  iOS and Mac Catalyst 27.0, MAUI 10.0.110  ->  xcode: 27.0
+    #   10.0.112  iOS and Mac Catalyst 26.5, MAUI 10.0.20   ->  xcode: 26.5 (Mac app runs on macOS 12)
+    # To upgrade, pick a newer set whose iOS and MacCatalyst versions match, and change xcode: to match.
     - &install_dotnet
       name: Install .NET 10 and the MAUI workloads
       script: |
@@ -19,7 +24,7 @@ definitions:
         ./dotnet-install.sh --channel 10.0.1xx --install-dir "$DOTNET_PATH"
         # Pin the workload set first, then install the workloads from it without updating.
         "$DOTNET" workload config --update-mode workload-set
-        "$DOTNET" workload update --version 10.0.113
+        "$DOTNET" workload update --version "$WORKLOAD_SET"
         "$DOTNET" workload install maui-ios maui-maccatalyst --skip-manifest-update
         "$DOTNET" workload list
         xcodebuild -version
@@ -35,6 +40,7 @@ workflows:
         DOTNET_PATH: $CM_BUILD_DIR/.dotnet
         DOTNET: $CM_BUILD_DIR/.dotnet/dotnet
         DOTNET_CLI_TELEMETRY_OPTOUT: 1
+        WORKLOAD_SET: 10.0.113
     triggering:
       events:
         - push
@@ -69,6 +75,7 @@ workflows:
         DOTNET_PATH: $CM_BUILD_DIR/.dotnet
         DOTNET: $CM_BUILD_DIR/.dotnet/dotnet
         DOTNET_CLI_TELEMETRY_OPTOUT: 1
+        WORKLOAD_SET: 10.0.113
         # The numeric Apple ID of the app, from App Store Connect > App Information.
         APP_STORE_APPLE_ID: "0000000000"
         APP_VERSION: "0.1.0"
@@ -104,3 +111,20 @@ workflows:
         auth: integration
         # Upload only. Builds go to internal testers (you) without Apple's beta review.
         submit_to_testflight: false
+
+  gearloop-mac-monterey-check:
+    name: gearloop Mac (Monterey) check
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      xcode: 26.5
+      vars:
+        DOTNET_PATH: $CM_BUILD_DIR/.dotnet
+        DOTNET: $CM_BUILD_DIR/.dotnet/dotnet
+        DOTNET_CLI_TELEMETRY_OPTOUT: 1
+        WORKLOAD_SET: 10.0.112
+    scripts:
+      - *install_dotnet
+      - name: Build for Mac (macOS 12 and newer)
+        script: |
+          "$DOTNET" build src/Gearloop.App -f net10.0-maccatalyst -c Debug -p:GearloopMacCatalystMinimum=15.0

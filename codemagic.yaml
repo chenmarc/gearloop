@@ -7,7 +7,7 @@
 definitions:
   scripts:
     # .NET for iOS and Mac only builds with the exact Xcode major.minor it was made for, so the
-    # workload set and the Xcode version below are pinned together. Workload set 10.113.0 has
+    # workload set and the Xcode version below are pinned together. Workload set 10.0.113 (NuGet package version 10.113.0) has
     # iOS and Mac Catalyst 27.0 (needs Xcode 27.0) and MAUI 10.0.110. To upgrade, pick a newer
     # set whose iOS and MacCatalyst versions match each other, and change xcode: to match.
     - &install_dotnet
@@ -19,7 +19,7 @@ definitions:
         ./dotnet-install.sh --channel 10.0.1xx --install-dir "$DOTNET_PATH"
         # Pin the workload set first, then install the workloads from it without updating.
         "$DOTNET" workload config --update-mode workload-set
-        "$DOTNET" workload update --version 10.113.0
+        "$DOTNET" workload update --version 10.0.113
         "$DOTNET" workload install maui-ios maui-maccatalyst --skip-manifest-update
         "$DOTNET" workload list
         xcodebuild -version

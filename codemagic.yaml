@@ -13,11 +13,15 @@ definitions:
     - &install_dotnet
       name: Install .NET 10 and the MAUI workloads
       script: |
+        set -euxo pipefail
         curl -sSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
         chmod +x dotnet-install.sh
         ./dotnet-install.sh --channel 10.0.1xx --install-dir "$DOTNET_PATH"
-        "$DOTNET" workload install maui-ios maui-maccatalyst --version 10.113.0
-        "$DOTNET" workload --info
+        # Pin the workload set first, then install the workloads from it without updating.
+        "$DOTNET" workload config --update-mode workload-set
+        "$DOTNET" workload update --version 10.113.0
+        "$DOTNET" workload install maui-ios maui-maccatalyst --skip-manifest-update
+        "$DOTNET" workload list
         xcodebuild -version
 
 workflows:

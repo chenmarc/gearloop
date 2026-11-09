@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Gearloop.App.ViewModels"
+             x:Class="Gearloop.App.Views.ItemDetailPage"
+             x:DataType="vm:ItemDetailViewModel"
+             Title="{Binding Status}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Edit" Command="{Binding EditCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12" MaximumWidthRequest="720">
+
+            <CollectionView ItemsSource="{Binding Photos}" ItemsLayout="HorizontalList"
+                            HeightRequest="160" IsVisible="{Binding HasPhotos}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:PhotoRow">
+                        <Border StrokeThickness="0" StrokeShape="RoundRectangle 10"
+                                WidthRequest="160" HeightRequest="160" Margin="0,0,8,0">
+                            <Image Source="{Binding FullPath}" Aspect="AspectFill" />
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <VerticalStackLayout Spacing="2">
+                <Label Text="{Binding Name}" FontSize="24" FontAttributes="Bold" />
+                <Label Text="{Binding Summary}" Style="{StaticResource Caption}" />
+            </VerticalStackLayout>
+
+            <!-- Profit, once sold -->
+            <Border Style="{StaticResource Card}" IsVisible="{Binding IsSold}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Profit" Style="{StaticResource Caption}" />
+                    <Label Text="{Binding Profit}" Style="{StaticResource BigNumber}" />
+                    <Label Text="{Binding ProfitDetail}" Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Costs -->
+            <Label Text="COSTS" Style="{StaticResource SectionTitle}" />
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="10">
+                    <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding CostRows}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:AmountRow">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                    <Label Text="{Binding Label}" />
+                                    <Label Grid.Column="1" Text="{Binding Amount}" />
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Expenses}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ExpenseRow">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnExpenseTapped" />
+                                    </Grid.GestureRecognizers>
+                                    <VerticalStackLayout>
+                                        <Label Text="{Binding Title}" />
+                                        <Label Text="{Binding Detail}" Style="{StaticResource Caption}" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1" Text="{Binding Amount}" />
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                    <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource MutedLight}, Dark={StaticResource MutedDark}}" Opacity="0.3" />
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Total cost" FontAttributes="Bold" />
+                        <Label Grid.Column="1" Text="{Binding TotalCost}" FontAttributes="Bold" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+            <Button Text="Add expense" Command="{Binding AddExpenseCommand}" Style="{StaticResource SecondaryButton}" />
+
+            <!-- Listing -->
+            <Label Text="LISTING" Style="{StaticResource SectionTitle}" IsVisible="{Binding IsNotSold}" />
+            <Border Style="{StaticResource Card}" IsVisible="{Binding IsListed}">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <Label Text="{Binding Listing}" VerticalOptions="Center" />
+                    <Button Grid.Column="1" Text="Unlist" Command="{Binding UnlistCommand}" Style="{StaticResource DangerButton}" />
+                </Grid>
+            </Border>
+            <Button Text="Mark as listed" Command="{Binding MarkListedCommand}"
+                    Style="{StaticResource SecondaryButton}" IsVisible="{Binding CanList}" />
+
+            <!-- Sale -->
+            <Label Text="SALE" Style="{StaticResource SectionTitle}" />
+            <Border Style="{StaticResource Card}" IsVisible="{Binding IsSold}">
+                <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding SaleRows}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:AmountRow">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <Label Text="{Binding Label}" />
+                                <Label Grid.Column="1" Text="{Binding Amount}" />
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </Border>
+            <Button Text="Record sale" Command="{Binding RecordSaleCommand}" IsVisible="{Binding IsNotSold}" />
+            <Button Text="Edit sale" Command="{Binding RecordSaleCommand}"
+                    Style="{StaticResource SecondaryButton}" IsVisible="{Binding IsSold}" />
+
+            <!-- Notes -->
+            <Label Text="NOTES" Style="{StaticResource SectionTitle}" IsVisible="{Binding HasNotes}" />
+            <Label Text="{Binding Notes}" IsVisible="{Binding HasNotes}" />
+
+            <Button Text="Delete item" Command="{Binding DeleteCommand}" Style="{StaticResource DangerButton}" Margin="0,24,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

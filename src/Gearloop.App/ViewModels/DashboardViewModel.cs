@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Gearloop.Core.Profit;
 using Gearloop.Data;
 
@@ -30,4 +31,7 @@ public partial class DashboardViewModel(GearloopDatabase database) : ObservableO
         MonthDetail = month.ItemsSold == 1 ? "1 item sold" : $"{month.ItemsSold} items sold";
         InventoryDetail = $"{allTime.OwnedCount} owned · {allTime.ListedCount} listed";
     }
+
+    [RelayCommand]
+    private Task LogBuyAsync() => Routes.GoToAsync(Routes.EditItem);
 }

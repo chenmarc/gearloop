@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Gearloop.App.ViewModels"
+             x:Class="Gearloop.App.Views.ItemEditPage"
+             x:DataType="vm:ItemEditViewModel"
+             Title="{Binding Title}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Save" Command="{Binding SaveCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12" MaximumWidthRequest="720">
+
+            <CollectionView ItemsSource="{Binding Photos}" ItemsLayout="HorizontalList" HeightRequest="96">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:PhotoRow">
+                        <Grid Padding="0,0,8,0">
+                            <Border StrokeThickness="0" StrokeShape="RoundRectangle 8" WidthRequest="96" HeightRequest="96">
+                                <Image Source="{Binding FullPath}" Aspect="AspectFill" />
+                            </Border>
+                            <Button Text="✕" Clicked="OnRemovePhotoClicked"
+                                    WidthRequest="32" HeightRequest="32" MinimumHeightRequest="32"
+                                    Padding="0" CornerRadius="16" FontSize="14"
+                                    HorizontalOptions="End" VerticalOptions="Start" Margin="0,4,12,0" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <Button Text="Add photos" Command="{Binding AddPhotoCommand}" Style="{StaticResource SecondaryButton}" />
+
+            <VerticalStackLayout Spacing="4">
+                <Label Text="What is it?" Style="{StaticResource FieldLabel}" />
+                <Entry Text="{Binding Name}" Placeholder="1978 Fender Precision Bass" />
+            </VerticalStackLayout>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Category" Style="{StaticResource FieldLabel}" />
+                    <Picker ItemsSource="{Binding Categories}" SelectedItem="{Binding Category}" Title="Pick one" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                    <Label Text="Bought from" Style="{StaticResource FieldLabel}" />
+                    <Picker ItemsSource="{Binding Sources}" SelectedItem="{Binding Source}" Title="Pick one" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Price paid ($)" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding PricePaid}" Keyboard="Numeric" Placeholder="450" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                    <Label Text="Date bought" Style="{StaticResource FieldLabel}" />
+                    <DatePicker Date="{Binding PurchaseDate}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Sales tax ($)" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding SalesTax}" Keyboard="Numeric" Placeholder="0" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                    <Label Text="Shipping in ($)" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding ShippingIn}" Keyboard="Numeric" Placeholder="0" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Button Text="More details (brand, year, serial, notes)"
+                    Command="{Binding ToggleMoreDetailsCommand}"
+                    Style="{StaticResource SecondaryButton}" />
+
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding ShowMoreDetails}">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Brand" Style="{StaticResource FieldLabel}" />
+                        <Entry Text="{Binding Brand}" Placeholder="Fender" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                        <Label Text="Model" Style="{StaticResource FieldLabel}" />
+                        <Entry Text="{Binding Model}" Placeholder="Precision Bass" />
+                    </VerticalStackLayout>
+                </Grid>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Year" Style="{StaticResource FieldLabel}" />
+                        <Entry Text="{Binding Year}" Keyboard="Numeric" Placeholder="1978" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                        <Label Text="Serial number" Style="{StaticResource FieldLabel}" />
+                        <Entry Text="{Binding SerialNumber}" />
+                    </VerticalStackLayout>
+                </Grid>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Condition" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding Condition}" Placeholder="Player grade, needs a setup" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Notes" Style="{StaticResource FieldLabel}" />
+                    <Editor Text="{Binding Notes}" AutoSize="TextChanges" MinimumHeightRequest="88" />
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <Button Text="Save" Command="{Binding SaveCommand}" Margin="0,12,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -9,6 +9,8 @@
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="12" MaximumWidthRequest="720">
 
+            <Button Text="Log a buy" Command="{Binding LogBuyCommand}" />
+
             <Border Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="4">
                     <Label Text="Profit this month" Style="{StaticResource Caption}" />

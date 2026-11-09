@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Gearloop.App.ViewModels"
+             x:Class="Gearloop.App.Views.ExpensesPage"
+             x:DataType="vm:ExpensesViewModel"
+             Title="Expenses">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Add" Command="{Binding AddCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <CollectionView ItemsSource="{Binding Expenses}" SelectionMode="Single"
+                    SelectionChanged="OnSelectionChanged" Margin="20,0">
+        <CollectionView.Header>
+            <VerticalStackLayout Spacing="12" Padding="0,12">
+                <Label Text="Costs that aren't tied to one item, like gas, packing supplies or subscriptions. They come out of your profit totals."
+                       Style="{StaticResource Caption}" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Border Style="{StaticResource Card}">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="This month" Style="{StaticResource Caption}" />
+                            <Label Text="{Binding MonthTotal}" FontSize="20" FontAttributes="Bold" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource Card}">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="This year" Style="{StaticResource Caption}" />
+                            <Label Text="{Binding YearTotal}" FontSize="20" FontAttributes="Bold" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+            </VerticalStackLayout>
+        </CollectionView.Header>
+        <CollectionView.EmptyView>
+            <Label Text="No expenses logged yet." Style="{StaticResource Caption}"
+                   HorizontalOptions="Center" Margin="0,40" />
+        </CollectionView.EmptyView>
+        <CollectionView.ItemTemplate>
+            <DataTemplate x:DataType="vm:GeneralExpenseRow">
+                <Border Style="{StaticResource Card}" Margin="0,6">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="{Binding Title}" FontAttributes="Bold" />
+                            <Label Text="{Binding Detail}" Style="{StaticResource Caption}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1" Text="{Binding Amount}" FontAttributes="Bold" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+    </CollectionView>
+
+</ContentPage>

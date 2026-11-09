@@ -12,6 +12,9 @@
         <ShellContent Title="Inventory"
                       ContentTemplate="{DataTemplate views:InventoryPage}"
                       Route="inventory" />
+        <ShellContent Title="Expenses"
+                      ContentTemplate="{DataTemplate views:ExpensesPage}"
+                      Route="expenses" />
     </TabBar>
 
 </Shell>
